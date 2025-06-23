@@ -37,11 +37,11 @@ terraform installed
 
 An SSH key at ~/.ssh/id_rsa.pub
 
-## Usage
+# Usage
 cd terraform
 
-# Initialize Terraform
+## Initialize Terraform
 terraform init
 
-# Apply the infrastructure
+## Apply the infrastructure
 terraform apply -var="project_id=your-gcp-project-id"

@@ -1,0 +1,55 @@
+resource "google_compute_network" "vpc_network" {
+  name = "vpc-webapp"
+}
+
+resource "google_compute_firewall" "allow-http" {
+  name    = "allow-http"
+  network = google_compute_network.vpc_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["80"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["http-server"]
+}
+
+resource "google_compute_firewall" "allow-ssh" {
+  name    = "allow-ssh"
+  network = google_compute_network.vpc_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["ssh-access"]
+}
+
+
+resource "google_compute_instance" "web_instance" {
+  name         = "web-vm"
+  machine_type = "e2-micro"
+  zone         = var.zone
+
+  tags = ["http-server", "ssh-access"]
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+    
+  }
+  metadata = {
+    ssh-keys = "stevenjvalle:${file("~/.ssh/id_rsa.pub")}"
+  }
+
+  network_interface {
+    network       = google_compute_network.vpc_network.name
+    access_config {}  # assigns external IP
+  }
+
+  metadata_startup_script = file("${path.module}/startup.sh")
+}
