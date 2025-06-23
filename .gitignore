@@ -1,0 +1,10 @@
+.env 
+
+# Terraform generateds
+terraform.tfstate
+terraform.tfstate.backup
+*/.terraform/*
+
+# Secrets and such
+.tfvars
+*.json
