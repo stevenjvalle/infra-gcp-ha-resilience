@@ -28,6 +28,20 @@ resource "google_compute_firewall" "allow-ssh" {
   target_tags   = ["ssh-access"]
 }
 
+resource "google_compute_firewall" "allow-monitoring" {
+  name    = "allow-monitoring"
+  network = google_compute_network.vpc_network.name
+
+  allow {
+    protocol = "tcp"
+    ports    = ["22", "9090", "3000"]
+  }
+
+  source_ranges = ["0.0.0.0/0"]
+  target_tags   = ["monitoring"]
+}
+
+
 resource "google_compute_instance_template" "web_template" {
   name         = "web-app-template"
   machine_type = "e2-micro"
@@ -122,4 +136,28 @@ resource "google_compute_global_forwarding_rule" "web_lb_rule" {
   target      = google_compute_target_http_proxy.web_proxy.id
   port_range  = "80"
   ip_protocol = "TCP"
+}
+
+
+resource "google_compute_instance" "monitoring_vm" {
+  name         = "monitoring-vm"
+  machine_type = "e2-medium"
+  zone         = var.zone
+
+  tags = ["monitoring"]
+
+  metadata = {
+    ssh-keys = "stevenjvalle:${file("~/.ssh/id_rsa.pub")}"
+  }
+
+  boot_disk {
+    initialize_params {
+      image = "debian-cloud/debian-11"
+    }
+  }
+
+  network_interface {
+    network       = google_compute_network.vpc_network.name
+    access_config {}  # assigns public IP
+  }
 }

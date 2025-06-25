@@ -1,0 +1,6 @@
+- name: Setup Monitoring Stack
+  hosts: monitoring
+  become: yes
+  roles:
+    - prometheus
+    - grafana

@@ -1,0 +1,32 @@
+- name: Configure Grafana Dashboards
+  hosts: monitoring
+  become: true
+  vars:
+    grafana_url: http://localhost:3000
+    grafana_user: admin
+    grafana_password: your_password_here
+  tasks:
+    - name: Install required Python libraries
+      apt:
+        name: python3-pip
+        state: present
+
+    - name: Install Grafana dependencies
+      pip:
+        name: requests
+
+    - name: Add Node Exporter Full dashboard
+      grafana.grafana.grafana_dashboard:
+        grafana_url: "{{ grafana_url }}"
+        grafana_user: "{{ grafana_user }}"
+        grafana_password: "{{ grafana_password }}"
+        dashboard_id: 1860
+        overwrite: true
+
+    - name: Add Prometheus 2.0 Stats dashboard
+      grafana.grafana.grafana_dashboard:
+        grafana_url: "{{ grafana_url }}"
+        grafana_user: "{{ grafana_user }}"
+        grafana_password: "{{ grafana_password }}"
+        dashboard_id: 3662
+        overwrite: true
